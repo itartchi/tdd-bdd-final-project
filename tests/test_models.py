@@ -192,3 +192,21 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(found.count(), count)
         for product in found:
             self.assertEqual(product.category, category)
+
+        def test_update_no_id(self):
+            product = ProductFactory()
+            product.id = None
+            self.assertRaises(DataValidationError, product.update)
+
+        def test_deserialize_bad_available(self):
+            data = ProductFactory().serialize()
+            data["available"] = "yes"          # not a bool
+            self.assertRaises(DataValidationError, Product().deserialize, data)
+
+        def test_deserialize_bad_category(self):
+            data = ProductFactory().serialize()
+            data["category"] = "NOT_A_CATEGORY"
+            self.assertRaises(DataValidationError, Product().deserialize, data)
+
+        def test_deserialize_missing_key(self):
+            self.assertRaises(DataValidationError, Product().deserialize, {}0)
